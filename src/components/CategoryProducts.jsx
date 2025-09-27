@@ -26,8 +26,8 @@ const CategoryProducts = () => {
       setError("");
       const url =
         selectedCategory === "All"
-          ? "/api/products"
-          : `/api/products?category=${encodeURIComponent(selectedCategory)}`;
+          ? "/api/product"
+          : `/api/product?category=${encodeURIComponent(selectedCategory)}`;
 
       const response = await axios.get(url);
       setProducts(response.data);
@@ -47,8 +47,8 @@ const CategoryProducts = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Shop by Category</h2>
-        <div className="flex flex-wrap gap-2">
+        <h2 className="text-2xl font-bold mb-4">Products</h2>
+        {/* <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedCategory("All")}
             className={`px-4 py-2 rounded-full ${
@@ -72,7 +72,7 @@ const CategoryProducts = () => {
               {category}
             </button>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {error && (
@@ -85,7 +85,7 @@ const CategoryProducts = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
+          {products?.map((product) => (
             <ProductCard
               key={product._id}
               product={product}

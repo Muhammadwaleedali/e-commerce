@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
       return parsedUser
         ? {
             ...parsedUser,
-            isAdmin: parsedUser.role === "admin",
+            isAdmin: parsedUser.role === "Admin" || parsedUser.isAdmin,
           }
         : null;
     } catch (err) {
@@ -68,13 +68,14 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await axios.post("/api/auth/login", { email, password });
 
-      if (!data.token || !data.user) {
-        throw new Error("Login failed: token or user missing from response");
+      if (!data.token) {
+        throw new Error("Login failed: token missing from response");
       }
 
       const userData = {
-        ...data.user,
-        isAdmin: data.user.role === "admin",
+        email,
+        role: data.roles?.[0] || "User",
+        isAdmin: data.roles?.includes("Admin") || false,
       };
 
       localStorage.setItem(tokenKey, data.token);

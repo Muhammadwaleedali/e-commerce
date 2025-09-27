@@ -32,18 +32,26 @@ export const addToCartAsync = createAsyncThunk(
         imagePath = product.image.src;
       }
 
-      const cartItem = {
-        productId: product._id || product.id,
+        const cartItem = {
+        userId: product._id || product.id,
         name: product.name || product.title,
         price: parseFloat(product.price || 0),
         image: imagePath,
         quantity: 1
       };
 
+      // const cartItem = {
+      //   productId: product._id || product.id,
+      //   name: product.name || product.title,
+      //   price: parseFloat(product.price || 0),
+      //   image: imagePath,
+      //   quantity: 1
+      // };
+
       // Log the normalized item for debugging
       console.log("Adding to cart:", cartItem);
 
-      const response = await axios.post("/api/cart/add", cartItem);
+      const response = await axios.post("/api/Order/create", cartItem);
       return response.data;
     } catch (err) {
       console.error("Add to cart error:", err.response?.data || err.message);

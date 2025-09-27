@@ -64,7 +64,7 @@ const AddProduct = ({ onProductAdded }) => {
       formData.append("image", image);
 
       // Send request to backend
-      const response = await axios.post("/api/products", formData, {
+      const response = await axios.post("/api/product", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

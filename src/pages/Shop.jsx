@@ -22,12 +22,12 @@ const Shop = () => {
 
         if (searchQuery) {
           const response = await axios.get(
-            `/api/products?search=${encodeURIComponent(searchQuery)}`
+            `/api/product?search=${encodeURIComponent(searchQuery)}`
           );
           setProducts(response.data);
         } else if (categoryQuery) {
           const response = await axios.get(
-            `/api/products?category=${encodeURIComponent(categoryQuery)}`
+            `/api/product?category=${encodeURIComponent(categoryQuery)}`
           );
           setProducts(response.data);
         } else {

@@ -12,7 +12,8 @@ const ProductCard = ({ product, isInCart, onDelete }) => {
   const isAdmin = user?.isAdmin;
 
   // Handle different image path formats
-  const productImage = product.imageUrl || product.image || "";
+  // const productImage = product.imageUrl || product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D";
+  const productImage = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D";
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
@@ -88,7 +89,7 @@ const ProductCard = ({ product, isInCart, onDelete }) => {
 
     setLoading(true);
     try {
-      const response = await axios.delete(`/api/products/${productId}`);
+      const response = await axios.delete(`/api/product/${productId}`);
       console.log("Delete response:", response.data);
       alert("Product deleted successfully!");
       if (onDelete) {
@@ -109,7 +110,7 @@ const ProductCard = ({ product, isInCart, onDelete }) => {
   };
 
   return (
-    <div className="bg-white p-4 shadow rounded relative border transform transition-transform duration-300 hover:scale-105">
+    <div className="bg-white p-2 shadow rounded relative border transform transition-transform duration-300 hover:scale-105 ">
       {isAdmin && (
         <button
           onClick={handleDeleteProduct}
@@ -128,6 +129,7 @@ const ProductCard = ({ product, isInCart, onDelete }) => {
         />
       </div>
       <h3 className="text-lg font-semibold">{product.name || product.title}</h3>
+      <p className="text-gray-500 mb-2">{product.description}</p>
       <p className="text-gray-500">${product.price}</p>
       {product.category && (
         <span className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded mt-2">
@@ -165,7 +167,7 @@ const ProductCard = ({ product, isInCart, onDelete }) => {
           ) : (
             <>
               <FaShoppingCart className="mr-1" />
-              <span>Add</span>
+              <span>Checkout</span>
             </>
           )}
         </button>
