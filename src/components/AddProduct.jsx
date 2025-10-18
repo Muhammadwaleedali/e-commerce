@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "../axios";
+import { productAPI } from "../api/endpoints";
 
 const CATEGORIES = [
   "Books",
@@ -20,6 +20,7 @@ const AddProduct = ({ onProductAdded }) => {
   });
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [imageBase64, setImageBase64] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,11 +30,26 @@ const AddProduct = ({ onProductAdded }) => {
     }));
   };
 
-  const handleImageChange = (e) => {
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(file);
       setPreview(URL.createObjectURL(file));
+      try {
+        const base64 = await convertToBase64(file);
+        setImageBase64(base64);
+      } catch (error) {
+        setError('Failed to process image');
+      }
     }
   };
 
@@ -55,20 +71,30 @@ const AddProduct = ({ onProductAdded }) => {
         );
       }
 
-      // Create form data
-      const formData = new FormData();
-      formData.append("title", productData.name);
-      formData.append("price", productData.price);
-      formData.append("description", productData.description);
-      formData.append("category", productData.category);
-      formData.append("image", image);
+      // Get category ID based on category name
+      const categoryMap = {
+        "Books": 1,
+        "Electronics": 2,
+        "Fashion": 3,
+        "Home & Garden": 4,
+        "Sports": 5
+      };
+      
+      // Create product payload matching server requirements
+      const productPayload = {
+        id: 0,
+        name: productData.name,
+        price: parseFloat(productData.price),
+        description: productData.description || "",
+        stock: 100,
+        categoryId: categoryMap[productData.category] || 1,
+        categoryName: productData.category,
+        image: image ? image.name : "",
+        imageUrl: imageBase64
+      };
 
       // Send request to backend
-      const response = await axios.post("/api/product", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await productAPI.create(productPayload);
 
       alert("Product added successfully!");
       // Reset form
@@ -80,6 +106,7 @@ const AddProduct = ({ onProductAdded }) => {
       });
       setImage(null);
       setPreview(null);
+      setImageBase64("");
 
       // Reset file input
       const fileInput = document.querySelector('input[type="file"]');

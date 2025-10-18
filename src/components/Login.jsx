@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "../axios";
 import { useAuth } from "../context/AuthContext";
 
-const Login = ({ openSignUp, onClose }) => {
+const Login = ({ openSignUp, onClose, loginType = 'user' }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,9 +29,10 @@ const Login = ({ openSignUp, onClose }) => {
   };
 
   return (
-    <div className="">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-half max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        {loginType === 'admin' ? 'Admin Login' : 'User Login'}
+      </h2>
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
             {error}
@@ -91,7 +92,6 @@ const Login = ({ openSignUp, onClose }) => {
             </p>
           </div>
         </form>
-      </div>
     </div>
   );
 };

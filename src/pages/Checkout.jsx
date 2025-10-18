@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { checkoutService } from "../services/checkoutService";
+import { clearCart } from "../redux/cartSlice";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -34,7 +36,9 @@ const Checkout = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePlaceOrder = () => {
+  const dispatch = useDispatch();
+
+  const handlePlaceOrder = async () => {
     if (
       !formData.name ||
       !formData.email ||
@@ -86,13 +90,30 @@ const Checkout = () => {
       orderNumber: orderNumber,
     };
 
-    const previousOrders = JSON.parse(localStorage.getItem("orders")) || [];
-    const updatedOrders = [...previousOrders, order];
-    localStorage.setItem("orders", JSON.stringify(updatedOrders));
+    try {
+      const orderPayload = {
+        userId: "current-user-id",
+        items: cart.items.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity
+        }))
+      };
 
-    setOrderData(order);
-    setError("");
-    setOrderPlaced(true);
+      await checkoutService.createOrder(orderPayload);
+      await checkoutService.clearCart();
+      dispatch(clearCart());
+
+      const previousOrders = JSON.parse(localStorage.getItem("orders")) || [];
+      const updatedOrders = [...previousOrders, order];
+      localStorage.setItem("orders", JSON.stringify(updatedOrders));
+
+      setOrderData(order);
+      setError("");
+      setOrderPlaced(true);
+    } catch (err) {
+      setError("Failed to place order. Please try again.");
+      console.error("Place order error:", err);
+    }
   };
 
   return (

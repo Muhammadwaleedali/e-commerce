@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AddProduct from "../components/AddProduct";
-import axios from "../axios";
+import { productAPI } from "../api/endpoints";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const ManageProducts = () => {
@@ -10,7 +10,7 @@ const ManageProducts = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("/products");
+      const response = await productAPI.getAll();
       setProducts(response.data);
     } catch (err) {
       setError("Failed to fetch products");
@@ -34,7 +34,7 @@ const ManageProducts = () => {
     }
 
     try {
-      await axios.delete(`/products/${productId}`);
+      await productAPI.delete(productId);
       setProducts((prev) => prev.filter((p) => p._id !== productId));
       alert("Product deleted successfully!");
     } catch (err) {

@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AddProduct from "../components/AddProduct";
+import FloatingAddProduct from "../components/FloatingAddProduct";
+import TestProductsButton from "../components/TestProductsButton";
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -25,14 +27,18 @@ const AdminPanel = () => {
             <h2 className="text-2xl font-bold text-gray-800">
               Admin Dashboard
             </h2>
-            <div className="text-sm text-gray-600">
-              Logged in as: {user.email}
+            <div className="flex items-center space-x-4">
+              <TestProductsButton />
+              <div className="text-sm text-gray-600">
+                Logged in as: {user.email}
+              </div>
             </div>
           </div>
 
           <AddProduct />
         </div>
       </div>
+      <FloatingAddProduct />
     </div>
   );
 };

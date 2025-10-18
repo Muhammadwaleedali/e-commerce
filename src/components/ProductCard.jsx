@@ -19,6 +19,12 @@ const ProductCard = ({ product, isInCart, onDelete }) => {
     e.stopPropagation();
     e.preventDefault();
 
+    if (!user) {
+      alert("Please login to add products to cart");
+      window.location.href = '/login';
+      return;
+    }
+
     const formattedProduct = {
       _id: product._id || product.id,
       name: product.name || product.title,

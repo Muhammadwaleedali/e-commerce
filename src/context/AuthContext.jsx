@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
+import { authAPI } from "../api/endpoints";
 import axios from "../axios";
 
 const AuthContext = createContext();
@@ -35,38 +36,30 @@ export function AuthProvider({ children }) {
   }, [user]);
 
   const register = async (name, email, password) => {
-    try {
-      const { data } = await axios.post("/api/auth/register", {
-        name,
-        email,
-        password,
-      });
-
-      if (!data.token || !data.user) {
-        throw new Error(
-          "Registration failed: token or user missing from response"
-        );
-      }
-
-      const userData = {
-        ...data.user,
-        isAdmin: data.user.role === "admin",
-      };
-
-      localStorage.setItem(tokenKey, data.token);
-      localStorage.setItem(userKey, JSON.stringify(userData));
-
-      axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
-      setUser(userData);
-    } catch (err) {
-      console.error("Registration error:", err);
-      throw err;
-    }
+    const { data } = await authAPI.register({
+      userName: name,
+      email,
+      password,
+      role: "User"
+    });
+    
+    // Set user data after successful registration
+    const userData = {
+      name,
+      email,
+      role: "User",
+      isAdmin: false,
+    };
+    
+    localStorage.setItem(userKey, JSON.stringify(userData));
+    setUser(userData);
+    
+    return data;
   };
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post("/api/auth/login", { email, password });
+      const { data } = await authAPI.login({ email, password });
 
       if (!data.token) {
         throw new Error("Login failed: token missing from response");

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaCartShopping } from "react-icons/fa6";
 import Modal from "./Modal";
@@ -8,12 +8,17 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchCart } from "../redux/cartSlice";
 import Login from "./login";
 import Register from "./Register";
+import AddProductModal from "./AddProductModal";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+  const [loginType, setLoginType] = useState('user');
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,6 +37,16 @@ const Navbar = () => {
     }
   }, [location.search]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowLoginDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -46,9 +61,11 @@ const Navbar = () => {
     setIsModelOpen(true);
   };
 
-  const openLogin = () => {
+  const openLogin = (type = 'user') => {
+    setLoginType(type);
     setIsLogin(true);
     setIsModelOpen(true);
+    setShowLoginDropdown(false);
   };
 
   const handleLogout = () => {
@@ -89,30 +106,65 @@ const Navbar = () => {
               </span>
             )}
           </Link>
+          {user && user.isAdmin && (
+            <button
+              onClick={() => setShowAddProduct(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300 font-medium"
+            >
+              Add Product
+            </button>
+          )}
           {user ? (
             <div className="flex items-center space-x-4">
-              <span className="text-sm">
-                {user.isAdmin ? "Admin" : "Welcome"}, {user.email}
-              </span>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-sm font-medium">
+                  {user.isAdmin ? "Admin" : "Welcome"}, {user.name || user.email}
+                </span>
+              </div>
               <button
                 onClick={handleLogout}
-                className="text-sm text-red-600 hover:text-red-800"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-300 font-medium"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <>
+            <div className="flex items-center space-x-3">
               <button
-                className="hidden md:block hover:text-blue-600"
-                onClick={openLogin}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300 font-medium"
+                onClick={openSignUp}
               >
-                Login | Register
+                Register
               </button>
-              <button className="block md:hidden" onClick={openLogin}>
-                <FaUser />
-              </button>
-            </>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 font-medium"
+                  onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+                >
+                  Login
+                </button>
+                {showLoginDropdown && (
+                  <div className="absolute right-0 mt-3 w-40 bg-white border rounded-lg shadow-lg z-50">
+                    <button
+                      onClick={() => openLogin('user')}
+                      className="block w-full text-left px-4 py-3 hover:bg-blue-50 text-gray-700 font-medium transition duration-200"
+                    >
+                      👤 User Login
+                    </button>
+                    <hr className="border-gray-200" />
+                    <button
+                      onClick={() => openLogin('admin')}
+                      className="block w-full text-left px-4 py-3 hover:bg-blue-50 text-gray-700 font-medium transition duration-200"
+                    >
+                      🔐 Admin Login
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -135,13 +187,17 @@ const Navbar = () => {
           <Login
             openSignUp={openSignUp}
             onClose={() => setIsModelOpen(false)}
+            loginType={loginType}
           />
         ) : (
           <Register
-            openLogin={openLogin}
+            openLogin={() => openLogin('user')}
             onClose={() => setIsModelOpen(false)}
           />
         )}
+      </Modal>
+      <Modal isModelOpen={showAddProduct} setIsModelOpen={setShowAddProduct}>
+        <AddProductModal onClose={() => setShowAddProduct(false)} />
       </Modal>
     </nav>
   );

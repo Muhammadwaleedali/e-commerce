@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://192.168.0.67:5000',
-  timeout: 5000
+  baseURL: 'https://localhost:7195',
+  timeout: 15000
 });
 
 // Add a request interceptor to add the auth token
@@ -20,7 +20,13 @@ instance.interceptors.request.use(
       config.headers['Content-Type'] = 'application/json';
     }
     
-    console.log('Making request to:', config.url, 'with method:', config.method);
+    console.log('🚀 Making request to:', config.baseURL + config.url, 'with method:', config.method.toUpperCase());
+    if (token) {
+      console.log('🔑 Using token:', token.substring(0, 20) + '...');
+    }
+    if (config.data && ['post', 'put', 'patch'].includes(config.method.toLowerCase())) {
+      console.log('📦 Request payload:', config.data);
+    }
     return config;
   },
   (error) => {
@@ -55,28 +61,21 @@ instance.interceptors.response.use(
 
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      localStorage.removeItem('user');
+      // Only redirect to login if not already on home page
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
+    }
+    
+    if (error.code === 'ECONNABORTED') {
+      console.error('⏰ Request timeout - Check if API server is running on https://localhost:7195');
     }
     
     return Promise.reject(error);
   }
 );
 
-// Add a request interceptor to handle MongoDB ObjectId
-instance.interceptors.request.use(
-  (config) => {
-    if (config.method === 'post' && config.url === '/cart/add') {
-      const data = config.data;
-      // Convert string ID to MongoDB ObjectId format if needed
-      if (typeof data.productId === 'string' && !data.productId.match(/^[0-9a-fA-F]{24}$/)) {
-        data.productId = data.productId.toString();
-      }
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+
 
 export default instance; 

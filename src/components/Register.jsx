@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { message } from "antd";
 import { useAuth } from "../context/AuthContext";
 
 const Register = ({ openLogin, onClose }) => {
@@ -16,6 +17,7 @@ const Register = ({ openLogin, onClose }) => {
 
     try {
       await register(name, email, password);
+      message.success('Account created successfully! Welcome to e-SHOP!');
       if (onClose) onClose(); // Close the modal after successful registration
     } catch (err) {
       console.error("Registration error:", err);
@@ -28,9 +30,8 @@ const Register = ({ openLogin, onClose }) => {
   };
 
   return (
-    <div>
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
             {error}
@@ -86,7 +87,6 @@ const Register = ({ openLogin, onClose }) => {
             Login
           </button>
         </div>
-      </div>
     </div>
   );
 };

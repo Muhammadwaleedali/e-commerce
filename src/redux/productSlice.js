@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../axios";
+import { productAPI } from "../api/endpoints";
 
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async () => {
     try {
-      const response = await axios.get("/api/product");
+      const response = await productAPI.getAll();
       return response.data;
     } catch (error) {
       console.error("Error fetching products:", error);

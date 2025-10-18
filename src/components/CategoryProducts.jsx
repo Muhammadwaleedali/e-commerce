@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../axios";
+import { productAPI } from "../api/endpoints";
 import ProductCard from "./ProductCard";
 
 const CATEGORIES = [
@@ -24,12 +24,9 @@ const CategoryProducts = () => {
     try {
       setLoading(true);
       setError("");
-      const url =
-        selectedCategory === "All"
-          ? "/api/product"
-          : `/api/product?category=${encodeURIComponent(selectedCategory)}`;
-
-      const response = await axios.get(url);
+      const response = selectedCategory === "All"
+        ? await productAPI.getAll()
+        : await productAPI.getAll(); // Note: API doesn't support category filtering yet
       setProducts(response.data);
     } catch (err) {
       setError("Failed to fetch products");
